@@ -2,7 +2,7 @@
 title: Jaizaa Backend
 emoji: 🏥
 colorFrom: green
-colorTo: white
+colorTo: blue
 sdk: docker
 app_port: 7860
 pinned: false
