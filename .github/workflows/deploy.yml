@@ -1,0 +1,63 @@
+name: Deploy Backend to Hugging Face Space
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      # Only trigger when backend files change
+      - 'jaizaa_backend/**'
+      - '.github/workflows/deploy.yml'
+  workflow_dispatch:  # Allow manual trigger from GitHub Actions UI
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history needed for accurate diffs
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install huggingface_hub CLI
+        run: pip install huggingface_hub
+
+      - name: Push backend to Hugging Face Space
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          HF_USERNAME: ${{ secrets.HF_USERNAME }}
+          HF_SPACE_NAME: ${{ secrets.HF_SPACE_NAME }}
+        run: |
+          python - <<'EOF'
+          import os
+          from huggingface_hub import HfApi
+
+          token     = os.environ["HF_TOKEN"]
+          username  = os.environ["HF_USERNAME"]
+          space     = os.environ["HF_SPACE_NAME"]
+          repo_id   = f"{username}/{space}"
+
+          api = HfApi()
+          api.upload_folder(
+              folder_path="jaizaa_backend",
+              repo_id=repo_id,
+              repo_type="space",
+              token=token,
+              commit_message="chore: deploy backend via GitHub Actions",
+              # Ignore dev files — secrets stay in HF Space settings
+              ignore_patterns=[
+                  ".env",
+                  "__pycache__/**",
+                  "*.pyc",
+                  ".pytest_cache/**",
+                  "*.tmp",
+                  "temp/**",
+              ],
+          )
+          print(f"✅ Deployed to https://huggingface.co/spaces/{repo_id}")
+          EOF

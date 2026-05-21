@@ -1,0 +1,53 @@
+name: Build Flutter APK
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'jaizaa_flutter/**'
+      - '.github/workflows/build-apk.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.44.0'
+          channel: 'stable'
+
+      - name: Add Android platform (if missing)
+        run: |
+          cd jaizaa_flutter
+          flutter create --platforms=android . || true
+
+      - name: Install dependencies
+        run: |
+          cd jaizaa_flutter
+          flutter pub get
+
+      - name: Build release APK
+        run: |
+          cd jaizaa_flutter
+          flutter build apk --release \
+            --dart-define=API_BASE_URL=${{ secrets.API_BASE_URL }}
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: jaizaa-release-apk
+          path: jaizaa_flutter/build/app/outputs/flutter-apk/app-release.apk
+          retention-days: 30

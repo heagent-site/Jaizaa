@@ -1,0 +1,43 @@
+# Jaizaa — Root .gitignore
+
+# Environment secrets — NEVER commit these
+.env
+*.env
+!.env.example
+
+# Python artifacts
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+*.egg-info/
+dist/
+build/
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs and temp
+*.log
+*.tmp
+temp/
+
+# Flutter (covered in jaizaa_flutter/.gitignore too)
+jaizaa_flutter/build/
+jaizaa_flutter/.dart_tool/
+jaizaa_flutter/.pub-cache/
+
+# Stitch design tools
+stitch-skills/
